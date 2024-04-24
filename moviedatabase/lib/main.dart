@@ -1,125 +1,227 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Movie Database',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Movie Database'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
+  MyHomePage({Key? key, required this.title}) : super(key: key);
+
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  String mediaType = 'movie';
+  String userInputName = '';
+  List<dynamic> mediaList = [];
+  int selectedIndex = -1;
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButton<String>(
+              value: mediaType,
+              items: [
+                DropdownMenuItem(
+                  value: 'movie',
+                  child: Text('Movie'),
+                ),
+                DropdownMenuItem(
+                  value: 'tv',
+                  child: Text('TV Show'),
+                ),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  mediaType = value!;
+                });
+              },
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: InputDecoration(
+                labelText: 'What title would you like to search for?',
+              ),
+              onChanged: (value) {
+                userInputName = value;
+              },
             ),
-          ],
-        ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                mediaList = await fetchMedia(
+                    "https://api.themoviedb.org/3/search/$mediaType?query=${Uri.encodeQueryComponent(userInputName)}&api_key=YOUR_API_KEY");
+
+                setState(() {});
+              } catch (e) {
+                print("Error fetching data: $e");
+              }
+            },
+            child: Text('Search'),
+          ),
+          if (mediaList.isNotEmpty)
+            Expanded(
+              child: ListView.builder(
+                itemCount: mediaList.length,
+                itemBuilder: (context, index) {
+                  if (mediaType == 'movie') {
+                    final movie = mediaList[index] as Movie;
+                    return ListTile(
+                      title: Text(movie.title),
+                      subtitle: Text(movie.releaseDate),
+                      onTap: () {
+                        setState(() {
+                          selectedIndex = index;
+                        });
+                      },
+                    );
+                  } else {
+                    final tvShow = mediaList[index] as TV;
+                    return ListTile(
+                      title: Text(tvShow.name),
+                      subtitle: Text(tvShow.firstAirDate),
+                      onTap: () {
+                        setState(() {
+                          selectedIndex = index;
+                        });
+                      },
+                    );
+                  }
+                },
+              ),
+            ),
+          if (selectedIndex != -1)
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    if (mediaType == 'movie') ...[
+                      ListTile(
+                        title: Text('Title:'),
+                        subtitle: Text(mediaList[selectedIndex].title),
+                      ),
+                      ListTile(
+                        title: Text('Release Date:'),
+                        subtitle: Text(mediaList[selectedIndex].releaseDate),
+                      ),
+                      ListTile(
+                        title: Text('Tagline:'),
+                        subtitle: Text(mediaList[selectedIndex].tagline),
+                      ),
+                    ] else ...[
+                      ListTile(
+                        title: Text('Name:'),
+                        subtitle: Text(mediaList[selectedIndex].name),
+                      ),
+                      ListTile(
+                        title: Text('First Air Date:'),
+                        subtitle: Text(mediaList[selectedIndex].firstAirDate),
+                      ),
+                      ListTile(
+                        title: Text('Overview:'),
+                        subtitle: Text(mediaList[selectedIndex].overview),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+
+  Future<List<dynamic>> fetchMedia(String url) async {
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        List<dynamic> results = jsonResponse['results'];
+        List<dynamic> mediaList = [];
+
+        for (var data in results) {
+          if (data.containsKey('title')) {
+            mediaList.add(Movie.fromJson(data));
+          } else if (data.containsKey('original_name')) {
+            mediaList.add(TV.fromJson(data));
+          }
+        }
+
+        return mediaList;
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      print("Error fetching data: $e");
+      return [];
+    }
+  }
+}
+
+class Movie {
+  final String title;
+  final String releaseDate;
+  final String tagline;
+
+  Movie({
+    required this.title,
+    required this.releaseDate,
+    required this.tagline,
+  });
+
+  factory Movie.fromJson(Map<String, dynamic> json) {
+    return Movie(
+      title: json['title'],
+      releaseDate: json['release_date'] ?? "Unknown",
+      tagline: json['tagline'] ?? "No tagline available",
+    );
+  }
+}
+
+class TV {
+  final String name;
+  final String firstAirDate;
+  final String overview;
+
+  TV({
+    required this.name,
+    required this.firstAirDate,
+    required this.overview,
+  });
+
+  factory TV.fromJson(Map<String, dynamic> json) {
+    return TV(
+      name: json['original_name'] ?? 'Unknown',
+      firstAirDate: json['first_air_date'] ?? 'Unknown',
+      overview: json['overview'] ?? 'No description available',
     );
   }
 }
