@@ -39,7 +39,6 @@ class _GameScreen extends State<MyHomePage> {
 
   void initState() {
     super.initState();
-    //TODO - initialize game board
     print('game');
   }
 
@@ -99,7 +98,7 @@ class _GameScreen extends State<MyHomePage> {
                           children: [
                             SizedBox(
                               width: 100,
-                              child: Image.asset('${game.currentPlayerIcon}'),
+                              child: Image.asset(game.currentPlayerIcon),
                             ), // Adjust spacing
                             Padding(
                               padding: const EdgeInsets.only(bottom: 50.0),
@@ -114,8 +113,8 @@ class _GameScreen extends State<MyHomePage> {
                       ),
               ),
               SizedBox(
-                width: 400, //TODO - setja í breytu
-                height: 500, //TODO - setja í breytu
+                width: 400,
+                height: 500,
                 child: GridView.builder(
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -165,7 +164,7 @@ class _GameScreen extends State<MyHomePage> {
                     ),
                   ),
                   Visibility(
-                    visible: game.gameOver,
+                    visible: game.gameOver || game.isTie,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,

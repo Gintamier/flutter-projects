@@ -1,5 +1,5 @@
 class Game {
-  static final boardLength = 9;
+  static const boardLength = 9;
   static const String path = './assets/';
   static const String playerO = path + 'gunni.png';
   static const String playerX = path + 'hjalti.png';
@@ -12,11 +12,11 @@ class Game {
   // - Game
   bool gameOver = false;
   game(index) {
-    if (!gameOver && this.board[index].isEmpty) {
+    if (!gameOver && board[index].isEmpty) {
       turnCounter++;
-      this.board[index] = currentPlayerIcon;
+      board[index] = currentPlayerIcon;
       if (isWinner() != false) {
-        this.turn();
+        turn();
       }
       if (turnCounter == 9 && winner == '') {
         isTie = true;
@@ -50,6 +50,6 @@ class Game {
         gameOver = true;
       }
     }
-    return !this.gameOver;
+    return !gameOver;
   }
 }
