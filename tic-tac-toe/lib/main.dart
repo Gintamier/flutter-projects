@@ -109,7 +109,7 @@ class _GameScreen extends State<MyHomePage> {
                 ),
           SizedBox(
             width: 400, //TODO - setja í breytu
-            height: 600, //TODO - setja í breytu
+            height: 500, //TODO - setja í breytu
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3),
