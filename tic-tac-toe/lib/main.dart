@@ -150,6 +150,7 @@ class _GameScreen extends State<MyHomePage> {
                 game.winner = '';
                 game.turnCounter = 0;
                 game.currentPlayer = true;
+                game.currentPlayerIcon = Game.playerO;
                 game.isTie = false;
               });
             },
