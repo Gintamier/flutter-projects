@@ -1,10 +1,10 @@
 class Game {
   static final boardLength = 9;
-
-  //TODO:
-  // - Player
-  String playerO = './assets/gunni.png';
-  String playerX = './assets/hjalti.png';
+  static const String path = './assets/';
+  static const String playerO = path +'gunni.png';
+  static const String playerX = path + 'hjalti.png';
+  static const String tieIcon = path + 'skuli.png';
+  String currentPlayerIcon = playerO;
   String winner = '';
   int turnCounter = 0;
   bool currentPlayer = true;
@@ -12,106 +12,32 @@ class Game {
   // - Game
   bool gameOver = false;
   game(index) {
-    if (!gameOver) {
+    if (!gameOver && this.board[index].isEmpty) {
       turnCounter++;
-      if (this.board[index].isEmpty) {
-        this.board[index] = currentPlayer ? playerO : playerX;
+        this.board[index] = currentPlayerIcon;
+      if (isWinner() != false) {
         this.turn();
-        isWinner();
+      }
         if (turnCounter == 9 && winner == '') {
           isTie = true;
-          playerO = './assets/skuli.png';
-          playerX = './assets/skuli.png';
-          winner = './assets/skuli.png';
-        }
       }
     }
   }
-
-  //  - variables - whos turn it is?
   turn() {
-    currentPlayer = !this.currentPlayer;
+    currentPlayerIcon = currentPlayerIcon == playerO ? playerX : playerO ;
   }
-
-  //  - board
   List<String> board = ['', '', '', '', '', '', '', '', ''];
-  //  - winnerCheck()
   isWinner() {
-    if (board[0] == playerO && board[1] == playerO && board[2] == playerO) {
-      winner = playerO;
-      this.gameOver = true;
-    } else if (board[0] == playerX &&
-        board[1] == playerX &&
-        board[2] == playerX) {
-      winner = playerX;
-      this.gameOver = true;
+    List<List<int>> winningpos = [[0,1,2],[3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
+    for (var pos in winningpos) {
+      if (board[pos[0]].isNotEmpty &&
+      board[pos[0]] == board[pos[1]] &&
+          board[pos[1]] == board[pos[2]]
+      ) {
+        winner = currentPlayerIcon;
+        gameOver = true;
+      }
     }
-    if (board[3] == playerO && board[4] == playerO && board[5] == playerO) {
-      winner = playerO;
-      this.gameOver = true;
-    } else if (board[3] == playerX &&
-        board[4] == playerX &&
-        board[5] == playerX) {
-      winner = playerX;
-      this.gameOver = true;
-    }
-    if (board[6] == playerO && board[7] == playerO && board[8] == playerO) {
-      winner = playerO;
-      this.gameOver = true;
-    } else if (board[6] == playerX &&
-        board[7] == playerX &&
-        board[8] == playerX) {
-      winner = playerX;
-      this.gameOver = true;
-    }
-
-    if (board[0] == playerO && board[3] == playerO && board[6] == playerO) {
-      winner = playerO;
-      this.gameOver = true;
-    } else if (board[0] == playerX &&
-        board[3] == playerX &&
-        board[6] == playerX) {
-      winner = playerX;
-      this.gameOver = true;
-    }
-    if (board[1] == playerO && board[4] == playerO && board[7] == playerO) {
-      winner = playerO;
-      this.gameOver = true;
-    } else if (board[1] == playerX &&
-        board[4] == playerX &&
-        board[7] == playerX) {
-      winner = playerX;
-      gameOver = true;
-    }
-    if (board[2] == playerO && board[5] == playerO && board[8] == playerO) {
-      winner = playerO;
-      this.gameOver = true;
-    } else if (board[2] == playerX &&
-        board[5] == playerX &&
-        board[8] == playerX) {
-      winner = playerX;
-      this.gameOver = true;
-    }
-    if (board[2] == playerO && board[4] == playerO && board[6] == playerO) {
-      winner = playerO;
-      this.gameOver = true;
-    } else if (board[2] == playerX &&
-        board[4] == playerX &&
-        board[6] == playerX) {
-      winner = playerX;
-      this.gameOver = true;
-    }
-
-    if (board[0] == playerO && board[4] == playerO && board[8] == playerO) {
-      winner = playerO;
-      this.gameOver = true;
-    } else if (board[0] == playerX &&
-        board[4] == playerX &&
-        board[8] == playerX) {
-      winner = playerX;
-      this.gameOver = true;
-    }
-
     return !this.gameOver;
   }
 }

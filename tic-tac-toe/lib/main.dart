@@ -56,9 +56,7 @@ class _GameScreen extends State<MyHomePage> {
                             children: [
                               SizedBox(
                                 width: 100,
-                                child: Image.asset(game.currentPlayer
-                                    ? game.playerO
-                                    : game.playerX),
+                                child: Image.asset(game.currentPlayerIcon),
                               ),
                               Text(
                                 game.currentPlayer ? "'s turn" : "'s turn",
@@ -91,7 +89,7 @@ class _GameScreen extends State<MyHomePage> {
                       children: [
                         SizedBox(
                           width: 150,
-                          child: Image.asset('${game.winner}'),
+                          child: Image.asset('${game.currentPlayerIcon}'),
                         ),
                         Center(
                           child: Text(
@@ -149,8 +147,6 @@ class _GameScreen extends State<MyHomePage> {
                 game.board = ['', '', '', '', '', '', '', '', ''];
                 game.currentPlayer = true;
                 game.gameOver = false;
-                game.playerO = './assets/gunni.png';
-                game.playerX = './assets/hjalti.png';
                 game.winner = '';
                 game.turnCounter = 0;
                 game.currentPlayer = true;
